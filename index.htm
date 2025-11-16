@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿瓦隆 - 角色攻略</title>
+    <style>
+        /* 頁面基本樣式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #1a237e;
+            margin-bottom: 25px;
+        }
+
+        /* 角色選擇區域 */
+        #character-selection {
+            padding: 30px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .role-button {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ffffff;
+        }
+
+        .role-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 陣營顏色 */
+        .good { background-color: #1565c0; } /* 藍色 */
+        .good:hover { background-color: #1976d2; }
+        .evil { background-color: #c62828; } /* 紅色 */
+        .evil:hover { background-color: #d32f2f; }
+
+        /* 角色資訊顯示區域 */
+        #character-info {
+            display: none; /* 預設隱藏 */
+            padding: 30px;
+        }
+
+        #role-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+        }
+        
+        /* 根據陣營顯示不同標題顏色 */
+        .good-title { color: #1565c0; border-color: #1565c0; }
+        .evil-title { color: #c62828; border-color: #c62828; }
+
+        .info-section h3 {
+            font-size: 22px;
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .info-section p {
+            font-size: 16px;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #ccc;
+        }
+
+        .info-section ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 10px;
+        }
+
+        .info-section li {
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        #back-button {
+            margin-top: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #616161;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #back-button:hover {
+            background-color: #424242;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="character-selection">
+            <h1>阿瓦隆 角色攻略</h1>
+            <h2>請選擇你的角色：</h2>
+            
+            <div class="button-grid">
+                <button class="role-button good" data-role="merlin">梅林 (Merlin)</button>
+                <button class="role-button good" data-role="percival">派西維爾 (Percival)</button>
+                <button class="role-button good" data-role="loyalServant">亞瑟的忠臣 (普通好人)</button>
+                
+                <button class="role-button evil" data-role="morgana">莫甘娜 (Morgana)</button>
+                <button class="role-button evil" data-role="assassin">刺客 (Assassin)</button>
+                <button class="role-button evil" data-role="mordred">莫德雷德 (Mordred)</button>
+                <button class="role-button evil" data-role="oberon">奧伯倫 (Oberon)</button>
+                <button class="role-button evil" data-role="minion">莫德雷德的爪牙 (普通壞人)</button>
+            </div>
+        </div>
+
+        <div id="character-info">
+            <h2 id="role-name"></h2>
+            
+            <div class="info-section" id="role-knowledge">
+                </div>
+            
+            <div class="info-section" id="role-strategy">
+                </div>
+            
+            <button id="back-button">返回角色選擇</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 等待 HTML 內容都載入完成後才執行
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // 儲存所有角色資料
+            const characterData = {
+                // --- 好人陣營 ---
+                'merlin': {
+                    name: '梅林 (Merlin)',
+                    team: 'good',
+                    knowledge: '你知道所有壞人是誰 (除了莫德雷德)。',
+                    strategy: [
+                        '<strong>低調！低調！再低調！</strong> 你的首要任務是活到最後不被刺殺。',
+                        '<strong>精準投票，模糊發言：</strong> 當隊伍中有壞人時，你應該投「反對」(No)；當隊伍中全是好人時，你才投「贊成」(Yes)。',
+                        '<strong>「軟指」壞人：</strong> 不要直接說「A 是壞人」，要用隱晦的方式說：「我覺得這個隊伍不太好」、「我比較信任 B 和 C」。',
+                        '<strong>適度裝笨：</strong> 偶爾裝作聽不懂、跟錯風向，讓刺客覺得你只是個普通好人。不要每一輪都表現得像上帝。'
+                    ]
+                },
+                'percival': {
+                    name: '派西維爾 (Percival)',
+                    team: 'good',
+                    knowledge: '你知道「梅林」和「莫甘娜」是哪兩位，但你無法分辨誰是誰。',
+                    strategy: [
+                        '<strong>辨識真假梅林：</strong> 這是你的核心任務。觀察你的「梅林候選二人組」(梅林與莫甘娜)。',
+                        '<strong>觀察投票：</strong> 真正的梅林會在有壞人的隊伍投「反對」。你可以試著提出一個「一好一壞」的隊伍，看那兩位候選人誰投了「反對」。',
+                        '<strong>保護梅林：</strong> 找到梅林後，你要像「梅林的保鑣」。主動發言，幫梅林吸引火力。',
+                        '<strong>「跳梅」：</strong> 在關鍵時刻，你可以假裝自己是梅林，來誤導刺客，掩護真正的梅林。'
+                    ]
+                },
+                'loyalServant': {
+                    name: '亞瑟的忠臣 (普通好人)',
+                    team: 'good',
+                    knowledge: '你什麼都不知道，只知道自己是好人。',
+                    strategy: [
+                        '<strong>觀察投票：</strong> 這是你唯一的線索。誰在否決隊伍？誰的發言前後矛盾？',
+                        '<strong>「兩次任務原則」：</strong> 如果一個人連續上了兩次「失敗」的任務，那他有極大概率是壞人。',
+                        '<strong>相信邏輯：</strong> 誰在任務失敗後急著指控別人？誰的發言一直很陽光？不要只憑直覺。',
+                        '<strong>跳出來：</strong> 如果你很確定，要勇敢帶隊，不要害怕被當成梅林。'
+                    ]
+                },
+                // --- 壞人陣營 ---
+                'morgana': {
+                    name: '莫甘娜 (Morgana)',
+                    team: 'evil',
+                    knowledge: '你知道其他壞人隊友 (除了奧伯倫)。在派西維爾眼中，你顯示為「梅林」。',
+                    strategy: [
+                        '<strong>模仿梅林：</strong> 你的任務是讓派西維爾相信你才是梅林。',
+                        '<strong>精準投票：</strong> 假裝你看得懂局勢。在有好人隊伍時投「贊成」，在有其他壞人時投「反對」(但要小心別擋到自己人)。',
+                        '<strong>誤導派西維爾：</strong> 發言時要顯得有遠見，但又不能太肯定。讓派西維爾覺得你就是那個「低調的梅林」。',
+                        '<strong>必要時「跳梅」：</strong> 在關鍵時刻，你可以跳出來說「我是梅林」，如果派西維爾相信了你，你就成功了。'
+                    ]
+                },
+                'assassin': {
+                    name: '刺客 (Assassin)',
+                    team: 'evil',
+                    knowledge: '你知道其他壞人隊友 (除了奧伯倫)。如果好人任務成功 3 次，你還有最後的機會刺殺梅林。',
+                    strategy: [
+                        '<strong>找出梅林：</strong> 你的唯一目標。梅林通常是那個「投票很準，但發言很水」的人。',
+                        '<strong>觀察派西維爾：</strong> 派西維爾在保護誰？他極力想保上任務的人，很可能就是梅林。',
+                        '<strong>隱藏自己：</strong> 不要急著跳出來，假裝自己是個普通好人，專心分析。',
+                        '<strong>混淆視聽：</strong> 你也可以假裝自己是派西維爾，亂指「梅林候選人」，製造混亂。'
+                    ]
+                },
+                'mordred': {
+                    name: '莫德雷德 (Mordred)',
+                    team: 'evil',
+                    knowledge: '你知道其他壞人隊友 (除了奧伯倫)。梅林看不到你。',
+                    strategy: [
+                        '<strong>扮演完美的好人：</strong> 由於梅林看不到你，你可以盡情地扮演一個「陽光、正直、帶隊精準」的好人領袖。',
+                        '<strong>取得梅林的信任：</strong> 你的目標是讓梅林本人都相信你是好人，甚至主動把你選入任務。',
+                        '<strong>關鍵一票：</strong> 在前一兩個任務可以投「成功」(Success) 來博取信任，在第 3 或第 4 個任務（關鍵任務）時再投下致命的「失敗」(Fail)。'
+                    ]
+                },
+                'oberon': {
+                    name: '奧伯倫 (Oberon)',
+                    team: 'evil',
+                    knowledge: '你是壞人，但你不知道隊友是誰，隊友也不知道你是誰。',
+                    strategy: [
+                        '<strong>資訊黑洞：</strong> 你是場上的X因素。你的行動會讓好人壞人都很難分析。',
+                        '<strong>「笨」壞人：</strong> 你可以假裝是個搞不清楚狀況的好人。',
+                        '<strong>伺機而動：</strong> 如果有機會上任務，記得要投「失敗」(Fail)。因為隊友不知道你是誰，他們可能不會保你上任務，你必須自己爭取。',
+                        '<strong>增加混亂：</strong> 你的存在本身就是對壞人協同的干擾，也是對好人分析的干擾。'
+                    ]
+                },
+                'minion': {
+                    name: '莫德雷德的爪牙 (普通壞人)',
+                    team: 'evil',
+                    knowledge: '你知道所有壞人隊友 (除了奧伯倫)。',
+                    strategy: [
+                        '<strong>保護隊友：</strong> 你的任務是幫助莫甘娜、刺客等核心角色。',
+                        '<strong>「丟石頭」：</strong> 互相指控，把水攪混。當一個壞人快被識破時，另一個壞人可以假裝「大義滅親」，指控自己的隊友，來博取好人信任。',
+                        '<strong>勇敢投失敗：</strong> 你沒有特殊能力，所以要勇敢上任務並投「失敗」。',
+                        '<strong>控制隊長：</strong> 投票給誰當隊長 (King) 非常重要。盡力確保自己的隊友能當上隊長。'
+                    ]
+                }
+            };
+
+            // 取得頁面上的元素
+            const selectionDiv = document.getElementById('character-selection');
+            const infoDiv = document.getElementById('character-info');
+            const roleButtons = document.querySelectorAll('.role-button');
+            const backButton = document.getElementById('back-button');
+            const roleNameEl = document.getElementById('role-name');
+            const roleKnowledgeEl = document.getElementById('role-knowledge');
+            const roleStrategyEl = document.getElementById('role-strategy');
+
+            // 顯示角色資訊的函式
+            function showRoleInfo(roleKey) {
+                const data = characterData[roleKey];
+                if (!data) return; // 如果找不到資料就退出
+
+                // 1. 填入內容
+                roleNameEl.textContent = data.name;
+                roleKnowledgeEl.innerHTML = `<h3>你知道什麼：</h3><p>${data.knowledge}</p>`;
+                
+                // 產生攻略列表
+                const strategyHtml = data.strategy.map(item => `<li>${item}</li>`).join('');
+                roleStrategyEl.innerHTML = `<h3>玩法攻略：</h3><ul>${strategyHtml}</ul>`;
+
+                // 2. 根據陣營設定標題顏色
+                roleNameEl.className = ''; // 清除舊的 class
+                if (data.team === 'good') {
+                    roleNameEl.classList.add('good-title');
+                } else {
+                    roleNameEl.classList.add('evil-title');
+                }
+
+                // 3. 切換顯示
+                selectionDiv.style.display = 'none';
+                infoDiv.style.display = 'block';
+            }
+
+            // 顯示角色選擇畫面的函式
+            function showSelectionScreen() {
+                selectionDiv.style.display = 'block';
+                infoDiv.style.display = 'none';
+            }
+
+            // 幫所有角色按鈕加上點擊事件
+            roleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const roleKey = this.getAttribute('data-role');
+                    showRoleInfo(roleKey);
+                });
+            });
+
+            // 幫「返回」按鈕加上點擊事件
+            backButton.addEventListener('click', showSelectionScreen);
+
+        });
+    </script>
+
+</body>
+</html>
