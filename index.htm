@@ -213,6 +213,28 @@
             content: '🔺';
         }
 
+        /* */
+        #role-notes-textarea {
+            width: 100%;
+            min-height: 150px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
+            font-family: inherit; /* 繼承 body 的字體 */
+            box-sizing: border-box; /* 讓 padding 不會撐爆寬度 */
+            resize: vertical; /* 允許使用者垂直調整大小 */
+            margin-top: 5px;
+            line-height: 1.6;
+        }
+        #role-notes-textarea:focus {
+            outline: none;
+            border-color: var(--good-color); /* 聚焦時顯示主題色 */
+            box-shadow: 0 0 8px rgba(21, 101, 192, 0.2);
+        }
+        /* */
+
+
         #back-button {
             margin-top: 30px;
             padding: 12px 25px;
@@ -263,6 +285,10 @@
                                 </ul>
                         </div>
                         
+                        <div class="info-section" id="role-notes-section">
+                            <h3>個人筆記：</h3>
+                            <textarea id="role-notes-textarea" placeholder="在這裡記錄玩家的可能性、場上局勢... (內容會自動儲存)"></textarea>
+                        </div>
                         <button id="back-button">返回角色選擇</button>
                     </div>
 
@@ -307,7 +333,7 @@
                     strategy: [
                         '<strong>觀察投票：</strong> 這是你唯一的線索。誰在否決隊伍？誰的發言前後矛盾？',
                         '<strong>「兩次任務原則」：</strong> 如果一個人連續上了兩次「失敗」的任務，那他有極大概率是壞人。',
-                        '<strong>相信邏輯：</strong> 誰在任務失敗後急著指控別人？誰的發言一直很陽光？不要只憑直覺。',
+                        '<strong>相信 logique：</strong> 誰在任務失敗後急著指控別人？誰的發言一直很陽光？不要只憑直覺。',
                         '<strong>跳出來：</strong> 如果你很確定，要勇敢帶隊，不要害怕被當成梅林。'
                     ]
                 },
@@ -366,6 +392,8 @@
                     ]
                 }
             };
+            
+            // let currentRoleKey = null;
 
             // --- 2. 獲取元素 ---
             const selectionDiv = document.getElementById('character-selection');
@@ -379,6 +407,9 @@
             const roleKnowledgeEl = document.getElementById('role-knowledge');
             const roleStrategyListEl = document.getElementById('role-strategy-list');
             const backButton = document.getElementById('back-button');
+
+            // const notesTextarea = document.getElementById('role-notes-textarea');
+
 
             // --- 3. 核心功能 ---
 
@@ -428,6 +459,14 @@
                 
                 roleStrategyListEl.innerHTML = data.strategy.map(item => `<li>${item}</li>`).join('');
 
+                // --- 修改：載入筆記 ---
+                currentRoleKey = roleKey; // 設置當前角色
+                const notesKey = `avalonNote_${roleKey}`;
+                const savedNotes = localStorage.getItem(notesKey) || '';
+                notesTextarea.value = savedNotes;
+                // --- 修改結束 ---
+
+
                 // 2. 執行動畫
                 selectionDiv.classList.add('hidden'); // 隱藏選擇畫面
                 infoScene.classList.remove('hidden'); // 顯示翻牌場景
@@ -443,6 +482,11 @@
             function showSelectionScreen() {
                 flipCardInner.classList.remove('is-flipped');
                 document.body.style.backgroundColor = 'var(--bg-light)'; // 恢復背景
+
+                // --- 修改：清空當前角色 ---
+                currentRoleKey = null;
+                notesTextarea.blur(); // 取消 textarea 的聚焦
+                // --- 修改結束 ---
             }
 
             // --- 4. 事件綁定 ---
@@ -458,6 +502,15 @@
                     infoScene.classList.add('hidden');
                 }
             });
+
+            // --- 新增：綁定筆記本的 input 事件 ---
+            notesTextarea.addEventListener('input', () => {
+                if (currentRoleKey) {
+                    const notesKey = `avalonNote_${currentRoleKey}`;
+                    localStorage.setItem(notesKey, notesTextarea.value);
+                }
+            });
+            // --- 新增結束 ---
 
             // --- 5. 初始啟動 ---
             createCharacterCards();
