@@ -209,9 +209,31 @@
         }
         
         /* 壞人列表用不同符號 */
-        .evil-title + .info-section + .info-section li::before {
+        .evil-title + .info-section + .info-section li::before,
+        .evil-title + .info-section + .info-section + .info-section li::before { /* <!-- 修改：調整CSS選擇器以適應新順序 --> */
             content: '🔺';
         }
+
+        /* 筆記本的 CSS 樣式 */
+        #role-notes-textarea {
+            width: 100%;
+            min-height: 150px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
+            font-family: inherit; /* 繼承 body 的字體 */
+            box-sizing: border-box; /* 讓 padding 不會撐爆寬度 */
+            resize: vertical; /* 允許使用者垂直調整大小 */
+            margin-top: 5px;
+            line-height: 1.6;
+        }
+        #role-notes-textarea:focus {
+            outline: none;
+            border-color: var(--good-color); /* 聚焦時顯示主題色 */
+            box-shadow: 0 0 8px rgba(21, 101, 192, 0.2);
+        }
+
 
         #back-button {
             margin-top: 30px;
@@ -229,6 +251,58 @@
         #back-button:hover {
             background-color: #424242;
         }
+
+        /* <!-- 新增：手機版滿畫面樣式 --> */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            h1 {
+                padding: 20px 0 10px 0;
+                margin-bottom: 15px;
+            }
+            
+            #character-selection {
+                padding: 15px;
+                box-sizing: border-box;
+            }
+
+            #character-info-scene {
+                padding-top: 0;
+            }
+
+            .flip-card {
+                max-width: 100%;
+                width: 100%;
+                margin: 0;
+            }
+
+            .flip-card-inner {
+                min-height: 100vh;
+                border-radius: 0;
+            }
+
+            .flip-card-front,
+            .flip-card-back {
+                border-radius: 0;
+                /* 確保手機版背面可以滾動 */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch; /* 為了 iOS 滾動更流暢 */
+                height: 100%;
+            }
+
+            .flip-card-back {
+                padding: 25px 20px 30px 20px; /* 調整手機內距 */
+                box-sizing: border-box;
+            }
+
+            #back-button {
+                width: 100%; /* 讓返回按鈕滿寬，更易於點擊 */
+                padding: 15px 25px; /* 增加按鈕高度 */
+            }
+        }
+        /* <!-- 新增結束 --> */
 
     </style>
 </head>
@@ -257,6 +331,13 @@
                             <p id="role-knowledge"></p>
                         </div>
                         
+                        <!-- 修改：筆記本區塊移到這裡 -->
+                        <div class="info-section" id="role-notes-section">
+                            <h3>個人筆記：</h3>
+                            <textarea id="role-notes-textarea" placeholder="在這裡記錄玩家的可能性、場上局勢... (內容會自動儲存)"></textarea>
+                        </div>
+                        <!-- 修改結束 -->
+
                         <div class="info-section" id="role-strategy-section">
                             <h3>玩法攻略：</h3>
                             <ul id="role-strategy-list">
@@ -276,7 +357,6 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             // --- 1. 資料庫 ---
-            // (已加入您提供的 imageUrl)
             const characterData = {
                 'merlin': {
                     name: '梅林 (Merlin)', team: 'good',
@@ -287,7 +367,8 @@
                         '<strong>精準投票，模糊發言：</strong> 當隊伍中有壞人時，你應該投「反對」(No)；當隊伍中全是好人時，你才投「贊成」(Yes)。',
                         '<strong>「軟指」壞人：</strong> 不要直接說「A 是壞人」，要用隱晦的方式說：「我覺得這個隊伍不太好」、「我比較信任 B 和 C」。',
                         '<strong>適度裝笨：</strong> 偶爾裝作聽不懂、跟錯風向，讓刺客覺得你只是個普通好人。不要每一輪都表現得像上帝。'
-                    ]
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n壞人 1: \n壞人 2: \n(莫德雷德是: ?)' // <!-- 新增 -->
                 },
                 'percival': {
                     name: '派西維爾 (Percival)', team: 'good',
@@ -298,7 +379,8 @@
                         '<strong>觀察投票：</strong> 真正的梅林會在有壞人的隊伍投「反對」。你可以試著提出一個「一好一壞」的隊伍，看那兩位候選人誰投了「反對」。',
                         '<strong>保護梅林：</strong> 找到梅林後，你要像「梅林的保鑣」。主動發言，幫梅林吸引火力。',
                         '<strong>「跳梅」：</strong> 在關鍵時刻，你可以假裝自己是梅林，來誤導刺客，掩護真正的梅林。'
-                    ]
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n梅林/莫甘娜 1: \n梅林/莫甘娜 2: \n\n推測的梅林是: ' // <!-- 新增 -->
                 },
                 'loyalServant': {
                     name: '亞瑟的忠臣 (普通好人)', team: 'good',
@@ -307,9 +389,10 @@
                     strategy: [
                         '<strong>觀察投票：</strong> 這是你唯一的線索。誰在否決隊伍？誰的發言前後矛盾？',
                         '<strong>「兩次任務原則」：</strong> 如果一個人連續上了兩次「失敗」的任務，那他有極大概率是壞人。',
-                        '<strong>相信邏輯：</strong> 誰在任務失敗後急著指控別人？誰的發言一直很陽光？不要只憑直覺。',
+                        '<strong>相信邏輯：</strong> 誰在任務失敗後急著指控別人？誰的發言一直很陽光？不要只憑直覺。', // <!-- 修正：logique -> 邏輯 -->
                         '<strong>跳出來：</strong> 如果你很確定，要勇敢帶隊，不要害怕被當成梅林。'
-                    ]
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n可疑玩家 1: \n可疑玩家 2: \n可信玩家: ' // <!-- 新增 -->
                 },
                 'mordred': {
                     name: '莫德雷德 (Mordred)', team: 'evil',
@@ -319,7 +402,8 @@
                         '<strong>扮演完美的好人：</strong> 由於梅林看不到你，你可以盡情地扮演一個「陽光、正直、帶隊精準」的好人領袖。',
                         '<strong>取得梅林的信任：</strong> 你的目標是讓梅林本人都相信你是好人，甚至主動把你選入任務。',
                         '<strong>關鍵一票：</strong> 在前一兩個任務可以投「成功」(Success) 來博取信任，在第 3 或第 4 個任務（關鍵任務）時再投下致命的「失敗」(Fail)。'
-                    ]
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n隊友 1: \n隊友 2: \n\n梅林可能是: ' // <!-- 新增 -->
                 },
                 'morgana': {
                     name: '莫甘娜 (Morgana)', team: 'evil',
@@ -330,7 +414,8 @@
                         '<strong>精準投票：</strong> 假裝你看得懂局勢。在有好人隊伍時投「贊成」，在有其他壞人時投「反對」(但要小心別擋到自己人)。',
                         '<strong>誤導派西維爾：</strong> 發言時要顯得有遠見，但又不能太肯定。讓派西維爾覺得你就是那個「低調的梅林」。',
                         '<strong>必要時「跳梅」：</strong> 在關鍵時刻，你可以跳出來說「我是梅林」，如果派西維爾相信了你，你就成功了。'
-                    ]
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n隊友 1: \n隊友 2: \n派西維爾是: \n\n模仿梅林投票: ' // <!-- 新增 -->
                 },
                 'assassin': {
                     name: '刺客 (Assassin)', team: 'evil',
@@ -341,7 +426,8 @@
                         '<strong>觀察派西維爾：</strong> 派西維爾在保護誰？他極力想保上任務的人，很可能就是梅林。',
                         '<strong>隱藏自己：</strong> 不要急著跳出來，假裝自己是個普通好人，專心分析。',
                         '<strong>混淆視聽：</strong> 你也可以假裝自己是派西維爾，亂指「梅林候選人」，製造混亂。'
-                    ]
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n隊友 1: \n隊友 2: \n\n梅林嫌疑 1 (投票準): \n梅林嫌疑 2 (派西保的): \n派西維爾是: ' // <!-- 新增 -->
                 },
                 'oberon': {
                     name: '奧伯倫 (Oberon)', team: 'evil',
@@ -349,10 +435,11 @@
                     knowledge: '你是壞人，但你不知道隊友是誰，隊友也不知道你是誰。',
                     strategy: [
                         '<strong>資訊黑洞：</strong> 你是場上的X因素。你的行動會讓好人壞人都很難分析。',
-                        '<strong>「笨」壞人：</strong> 你可以假裝是個搞不清楚狀況的好人。',
+                        '<strong>「笨」壞人：</strong> 你可以假装是個搞不清楚狀況的好人。',
                         '<strong>伺機而動：</strong> 如果有機會上任務，記得要投「失敗」(Fail)。因為隊友不知道你是誰，他們可能不會保你上任務，你必須自己爭取。',
-                        '<strong>增加混亂：</strong> 你的存在本身就是對壞人協同的干擾，也是對好人分析的干擾。'
-                    ]
+                        '<strong>增加混亂：</strong> 你的存在本身就是對壞人協同的干擾，也是對好人分析的干擾。' // <!-- 修正：移除 'E' -->
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n可疑玩家 (可能是隊友): \n可疑玩家 (可能是梅林): ' // <!-- 新增 -->
                 },
                 'minion': {
                     name: '莫德雷德的爪牙 (普通壞人)', team: 'evil',
@@ -362,10 +449,13 @@
                         '<strong>保護隊友：</strong> 你的任務是幫助莫甘娜、刺客等核心角色。',
                         '<strong>「丟石頭」：</strong> 互相指控，把水攪混。當一個壞人快被識破時，另一個壞人可以假裝「大義滅親」，指控自己的隊友，來博取好人信任。',
                         '<strong>勇敢投失敗：</strong> 你沒有特殊能力，所以要勇敢上任務並投「失敗」。',
-                        '<strong>控制隊長：</strong> 投票給誰當隊長 (King) 非常重要。盡力確保自己的隊友能當上隊長。'
-                    ]
+                        '<strong>控制隊長：</strong> 投票給誰當隊長 (King) 非常重要。盡力確保自己的隊友能當上隊長。' // <!-- 修正：移除 'T' -->
+                    ],
+                    notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n隊友 1: \n隊友 2: \n\n要保護的: \n要陷害的: ' // <!-- 新增 -->
                 }
             };
+            
+            let currentRoleKey = null;
 
             // --- 2. 獲取元素 ---
             const selectionDiv = document.getElementById('character-selection');
@@ -380,13 +470,14 @@
             const roleStrategyListEl = document.getElementById('role-strategy-list');
             const backButton = document.getElementById('back-button');
 
+            const notesTextarea = document.getElementById('role-notes-textarea');
+
+
             // --- 3. 核心功能 ---
 
-            // 動態生成角色選擇卡片
             function createCharacterCards() {
-                cardGridContainer.innerHTML = ''; // 清空
+                cardGridContainer.innerHTML = ''; 
                 
-                // 為了讓壞人排在一起，我們可以先排序
                 const sortedRoles = Object.entries(characterData).sort(([, a], [, b]) => {
                     if (a.team === b.team) return 0;
                     return a.team === 'good' ? -1 : 1;
@@ -397,7 +488,6 @@
                     card.className = `role-card ${data.team}`;
                     card.setAttribute('data-role', roleKey);
                     
-                    // 從 '梅林 (Merlin)' 中提取 '梅林'
                     const displayName = data.name.split(' (')[0]; 
                     
                     card.innerHTML = `
@@ -410,17 +500,13 @@
                 }
             }
 
-            // 顯示角色資訊 (翻牌)
             function showRoleInfo(roleKey) {
                 const data = characterData[roleKey];
                 if (!data) return;
 
-                // 1. 填充內容 (在翻轉前完成)
-                
-                // 填充正面 (圖片)
+                // 1. 填充內容
                 infoCardFront.innerHTML = `<img src="${data.imageUrl}" alt="${data.name}">`;
                 
-                // 填充背面 (資訊)
                 roleNameEl.textContent = data.name;
                 roleNameEl.className = data.team === 'good' ? 'good-title' : 'evil-title';
                 
@@ -428,34 +514,52 @@
                 
                 roleStrategyListEl.innerHTML = data.strategy.map(item => `<li>${item}</li>`).join('');
 
-                // 2. 執行動畫
-                selectionDiv.classList.add('hidden'); // 隱藏選擇畫面
-                infoScene.classList.remove('hidden'); // 顯示翻牌場景
-                document.body.style.backgroundColor = 'var(--bg-dark)'; // 讓背景變暗
+                // <!-- 修改：載入筆記 -->
+                currentRoleKey = roleKey; 
+                const notesKey = `avalonNote_${roleKey}`;
+                const savedNotes = localStorage.getItem(notesKey); // 檢查是否存在
+                
+                if (savedNotes !== null) {
+                    // 如果用戶儲存過 (即使是空字串)，就載入用戶的紀錄
+                    notesTextarea.value = savedNotes;
+                } else {
+                    // 如果從未儲存過 (null)，就載入預設模板
+                    notesTextarea.value = data.notesTemplate || ''; // 使用模板，如果模板不存在則為空
+                }
+                // <!-- 修改結束 -->
 
-                // 使用 setTimeout 確保 DOM 更新後才開始 transition
+                // 2. 執行動畫
+                selectionDiv.classList.add('hidden'); 
+                infoScene.classList.remove('hidden'); 
+                document.body.style.backgroundColor = 'var(--bg-dark)'; 
+
                 setTimeout(() => {
                     flipCardInner.classList.add('is-flipped');
-                }, 10); // 10ms 延遲
+                }, 10); 
             }
 
-            // 顯示角色選擇 (翻回去)
             function showSelectionScreen() {
                 flipCardInner.classList.remove('is-flipped');
-                document.body.style.backgroundColor = 'var(--bg-light)'; // 恢復背景
+                document.body.style.backgroundColor = 'var(--bg-light)'; 
+
+                currentRoleKey = null;
+                notesTextarea.blur(); 
             }
 
             // --- 4. 事件綁定 ---
-
-            // 綁定 "返回" 按鈕
             backButton.addEventListener('click', showSelectionScreen);
 
-            // 監聽翻轉動畫結束事件
             flipCardInner.addEventListener('transitionend', () => {
-                // 只有在 "翻回去" 的動畫結束後，才切換畫面
                 if (!flipCardInner.classList.contains('is-flipped')) {
                     selectionDiv.classList.remove('hidden');
                     infoScene.classList.add('hidden');
+                }
+            });
+
+            notesTextarea.addEventListener('input', () => {
+                if (currentRoleKey) {
+                    const notesKey = `avalonNote_${currentRoleKey}`;
+                    localStorage.setItem(notesKey, notesTextarea.value);
                 }
             });
 
