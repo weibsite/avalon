@@ -224,6 +224,10 @@
             border: 2px solid transparent;
             background-color: #e5e7eb; /* gray-200 */
             color: #374151; /* gray-700 */
+            /* 【新增】防止手機長按時觸發選單 */
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
         .player-btn:hover {
             background-color: #d1d5db; /* gray-300 */
@@ -324,8 +328,11 @@
             .player-token { width: 35px; height: 35px; line-height: 35px; font-size: 12px; }
             
             #mini-seating-layout-container {
-                position: static; /* 解除絕對定位 */
-                margin-bottom: 1.5rem; /* 24px */
+                /* position: static; 解除絕對定位 */
+                /* margin-bottom: 1.5rem; 24px */
+                position: fixed; /* 【修改】固定在視窗右上角 */
+                top: 0.75rem; /* 12px */
+                right: 0.75rem; /* 12px */
             }
             #mini-seating-grid {
                 max-width: 300px; /* 限制寬度 */
@@ -1211,20 +1218,26 @@
                 }
 
                 if (mode === 'mission') {
-                    // 循環: 預設 -> 成功 (黃) -> 失敗 (黑) -> 預設
-                    const isSuccess = button.classList.contains('selected-success');
-                    const isFail = button.classList.contains('selected-fail');
+                    // 【修改】點擊任一玩家，切換 *所有* 玩家的狀態 (成功/失敗)
+                    const allButtons = group.querySelectorAll('.player-btn');
+                    
+                    // 檢查 *目前* 的狀態 (以被點擊的按鈕為準)
+                    // 如果當前是 'fail'，則全部變 'success'。
+                    // 否則 (是 'success' 或 '預設')，則全部變 'fail'。
+                    const isCurrentlyFail = button.classList.contains('selected-fail');
 
-                    if (!isSuccess && !isFail) {
-                        // 預設 -> 成功
-                        button.classList.add('selected-success');
-                    } else if (isSuccess) {
-                        // 成功 -> 失敗
-                        button.classList.remove('selected-success');
-                        button.classList.add('selected-fail');
-                    } else if (isFail) {
-                        // 失敗 -> 預設
-                        button.classList.remove('selected-fail');
+                    if (isCurrentlyFail) {
+                        // 目前是失敗 -> 全部切換為成功
+                        allButtons.forEach(btn => {
+                            btn.classList.remove('selected-fail');
+                            btn.classList.add('selected-success');
+                        });
+                    } else {
+                        // 目前是成功 (或預設) -> 全部切換為失敗
+                        allButtons.forEach(btn => {
+                            btn.classList.remove('selected-success');
+                            btn.classList.add('selected-fail');
+                        });
                     }
                 }
             }
