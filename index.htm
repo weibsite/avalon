@@ -101,8 +101,8 @@
             top: 2px;
             font-size: 14px;
         }
-        .evil-title + .info-section + .info-section + .info-section li::before,
-        .evil-title + .info-section + .info-section + .info-section + .info-section li::before {
+        .evil-title + .info-section + .info-section li::before,
+        .evil-title + .info-section + .info-section + .info-section li::before {
             content: '🔺';
         }
 
@@ -123,6 +123,8 @@
             border: 2px solid white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             font-size: 14px;
+            /* 【修正】防止在 iOS 上長按時觸發預設選單 */
+            -webkit-touch-callout: none;
         }
         .player-token:active {
             cursor: grabbing;
@@ -194,10 +196,9 @@
             box-shadow: none;
         }
 
-        /* 當座位鎖定時，隱藏主網格、玩家設置和鎖定按鈕 */
+        /* 當座位鎖定時，隱藏主網格 */
         #scoreboard-section.seating-locked #seating-section,
-        #scoreboard-section.seating-locked #setup-section,
-        #scoreboard-section.seating-locked #lock-layout-btn {
+        #scoreboard-section.seating-locked #setup-section {
             display: none;
         }
         /* 當未鎖定時，隱藏小地圖和解鎖按鈕 */
@@ -239,7 +240,7 @@
             background-color: var(--good-color);
             color: white;
         }
-        /* 隊員 (被禁用) */
+        /* 隊員 (被禁止) */
         .player-btn.team.disabled {
             background-color: #f3f4f6; /* gray-100 */
             color: #9ca3af; /* gray-400 */
@@ -252,12 +253,12 @@
             background-color: var(--success-color);
             color: white;
         }
-        /* 失敗 (任務) - 全黑 */
+        /* 失敗 (任務) */
         .player-btn.mission.selected-fail {
             background-color: var(--fail-color);
             color: white;
         }
-        /* 成功 (任務) - 全黃 */
+        /* 成功 (任務) */
         .player-btn.mission.selected-success {
             background-color: #eab308; /* yellow-500 */
             color: #1f2937;
@@ -275,10 +276,13 @@
             background-color: #dcfce7; /* green-100 */
             color: #15803d; /* green-700 */
         }
-        .vote-result-display.fail,
-        .vote-result-display.tie {
+        .vote-result-display.fail {
             background-color: #fee2e2; /* red-100 */
             color: #b91c1c; /* red-700 */
+        }
+        .vote-result-display.tie {
+            background-color: #fef3c7; /* yellow-100 */
+            color: #a16207; /* yellow-700 */
         }
 
         /* 任務結果顯示 */
@@ -404,7 +408,7 @@
 
 
             <!-- 玩家設置 -->
-            <div id="setup-section" class="setup-section mb-8">
+            <div class="setup-section mb-8">
                 <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4">1. 玩家設置</h2>
                 <div class="flex flex-col sm:flex-row items-center gap-4 mb-4">
                     <label for="player-count" class="font-semibold">玩家人數 (5-10):</label>
@@ -422,7 +426,7 @@
             </div>
 
             <!-- 座位佈局 -->
-            <div id="seating-section" class="seating-section mb-8">
+            <div class="seating-section mb-8">
                 <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4">2. 座位佈局 (5x5 彈性網格)</h2>
                 <div id="seating-grid" class="grid grid-cols-5 gap-2 border-2 border-gray-200 bg-gray-50 p-3 rounded-lg max-w-xl mx-auto">
                     <!-- JS 會產生 25 個格子 -->
@@ -495,7 +499,7 @@
                     knowledge: '你知道其他壞人隊友 (除了奧伯倫)。梅林看不到你。',
                     strategy: [
                         '<strong>扮演完美的好人：</strong> 由於梅林看不到你，你可以盡情地扮演一個「陽光、正直、帶隊精準」的好人領袖。',
-                        '<strong>取得梅林的信任：：</strong> 你的目標是讓梅林本人都相信你是好人，甚至主動把你選入任務。',
+                        '<strong>取得梅林的信任：</strong> 你的目標是讓梅林本人都相信你是好人，甚至主動把你選入任務。',
                         '<strong>關鍵一票：</strong> 在前一兩個任務可以投「成功」(Success) 來博取信任，在第 3 或第 4 個任務（關鍵任務）時再投下致命的「失敗」(Fail)。'
                     ],
                     notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n隊友 1: \n隊友 2: \n\n梅林可能是: '
@@ -544,7 +548,7 @@
                         '<strong>保護隊友：</strong> 你的任務是幫助莫甘娜、刺客等核心角色。',
                         '<strong>「丟石頭」：</strong> 互相指控，把水攪混。當一個壞人快被識破時，另一個壞人可以假裝「大義滅親」，指控自己的隊友，來博取好人信任。',
                         '<strong>勇敢投失敗：</strong> 你沒有特殊能力，所以要勇敢上任務並投「失敗」。',
-                        '<strong>控制隊長：：</strong> 投票給誰當隊長 (King) 非常重要。盡力確保自己的隊友能當上隊長。'
+                        '<strong>控制隊長：</strong> 投票給誰當隊長 (King) 非常重要。盡力確保自己的隊友能當上隊長。'
                     ],
                     notesTemplate: '玩家 A: \n玩家 B: \n玩家 C: \n玩家 D: \n玩家 E: \n\n隊友 1: \n隊友 2: \n\n要保護的: \n要陷害的: '
                 }
@@ -567,8 +571,6 @@
             const navLinks = document.querySelectorAll('.nav-link');
             const roleGuideSection = document.getElementById('role-guide-section');
             const scoreboardSection = document.getElementById('scoreboard-section');
-            const setupSection = document.getElementById('setup-section');
-            const seatingSection = document.getElementById('seating-section');
             const playerCountInput = document.getElementById('player-count');
             const generatePlayersBtn = document.getElementById('generate-players-btn');
             const playerTokenBank = document.getElementById('player-token-bank');
@@ -602,8 +604,12 @@
             let activePlayerCount = 5;
             let currentRules = GAME_RULES[5];
             
-            // 用於拖曳的變數
+            // --- 【修正】 用於拖曳的全域變數 ---
             let draggedToken = null;
+            let originalParent = null; // 觸控開始時的原始父元素
+            let touchOffsetX = 0;   // 觸控點相對於籌碼左上角的 X 偏移
+            let touchOffsetY = 0;   // 觸控點相對於籌碼左上角的 Y 偏移
+            let lastValidTarget = null; // 最後一個有效的放置目標
 
             // --- 5. 核心功能 (角色攻略) ---
 
@@ -664,10 +670,6 @@
                 document.body.style.backgroundColor = 'var(--bg-light)'; 
                 currentRoleKey = null;
                 notesTextarea.blur(); 
-
-                // 確保切換回來時，角色選擇是可見的
-                selectionDiv.classList.remove('hidden');
-                infoScene.classList.add('hidden');
             }
             
             // --- 6. 核心功能 (分頁) ---
@@ -690,11 +692,12 @@
                             roleGuideSection.classList.remove('hidden');
                             scoreboardSection.classList.add('hidden');
                             
-                            // 【修正】確保切換回攻略頁面時，顯示選擇畫面
+                            // 【錯誤修正】
+                            // 立刻顯示角色選擇列表，並隱藏卡片資訊
                             selectionDiv.classList.remove('hidden');
                             infoScene.classList.add('hidden');
                             
-                            showSelectionScreen(); 
+                            showSelectionScreen(); // 呼叫此函式來重置狀態 (如 .is-flipped 和背景色)
                         } else {
                             roleGuideSection.classList.add('hidden');
                             scoreboardSection.classList.remove('hidden');
@@ -722,12 +725,9 @@
                 lockLayoutBtn.addEventListener('click', handleLockLayout);
                 unlockLayoutBtn.addEventListener('click', handleUnlockLayout);
                 
-                setupDragAndDrop();
+                setupDragAndDrop(); // 設置拖放 (包含桌面和手機)
                 generatePlayerTokens(); // 預設產生 5 位
-                
-                // 確保初始狀態下，Tracker 是隱藏的
-                document.querySelector('.tracker-section').classList.add('hidden');
-
+                // 注意：setupRoundTabs() 和 showRoundLog() 會在鎖定佈局後才調用
             }
             
             function generatePlayerTokens() {
@@ -743,12 +743,136 @@
                     token.textContent = playerId;
                     token.dataset.player = playerId;
                     token.id = `token-${playerId}`;
-                    token.draggable = true;
+                    token.draggable = true; // 保留給桌面
                     playerTokenBank.appendChild(token);
+                    
+                    // 【修正】為手機添加觸控事件監聽
+                    token.addEventListener('touchstart', handleTouchStart, { passive: false });
                 }
             }
+            
+            // --- 【新增】觸控拖曳輔助函式 ---
+
+            function handleTouchStart(e) {
+                if (e.target.classList.contains('player-token')) {
+                    draggedToken = e.target;
+                    originalParent = draggedToken.parentElement;
+                    
+                    const touch = e.touches[0];
+                    const rect = draggedToken.getBoundingClientRect();
+                    
+                    // 計算觸控點相對於籌碼左上角的偏移
+                    touchOffsetX = touch.clientX - rect.left;
+                    touchOffsetY = touch.clientY - rect.top;
+
+                    // 設置拖曳時的樣式
+                    draggedToken.style.position = 'fixed'; // 使用 fixed 定位，使其脫離文檔流並相對於視窗
+                    draggedToken.style.zIndex = '1000';
+                    draggedToken.style.opacity = '0.7';
+                    draggedToken.style.pointerEvents = 'none'; // 讓 elementFromPoint 可以偵測到下方的元素
+                    
+                    // 立即更新位置
+                    updateTokenPosition(touch);
+
+                    // 綁定全域事件
+                    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                    document.addEventListener('touchend', handleTouchEnd);
+                    document.addEventListener('touchcancel', handleTouchEnd); // 處理意外中斷
+                }
+            }
+            
+            function updateTokenPosition(touch) {
+                 if (!draggedToken) return;
+                 // 根據觸控位置和偏移量來更新籌碼位置
+                 draggedToken.style.left = `${touch.clientX - touchOffsetX}px`;
+                 draggedToken.style.top = `${touch.clientY - touchOffsetY}px`;
+            }
+
+            function handleTouchMove(e) {
+                if (!draggedToken) return;
+                
+                e.preventDefault(); // 在移動時才防止滾動
+                const touch = e.touches[0];
+                updateTokenPosition(touch);
+
+                // 尋找觸控點下方的元素
+                const elementUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropTarget = elementUnder ? elementUnder.closest('.grid-cell, #player-token-bank') : null;
+
+                // 清除上一個目標的 'drag-over' 樣式
+                if (lastValidTarget && lastValidTarget !== dropTarget) {
+                    lastValidTarget.classList.remove('drag-over');
+                }
+                
+                // 為新目標添加 'drag-over' 樣式
+                if (dropTarget) {
+                    dropTarget.classList.add('drag-over');
+                    lastValidTarget = dropTarget;
+                } else {
+                    lastValidTarget = null;
+                }
+            }
+            
+            function handleTouchEnd(e) {
+                if (!draggedToken) return;
+
+                // 尋找最後觸控點下方的元素
+                const touch = e.changedTouches[0];
+                // 檢查 touch 是否存在，以防萬一
+                if (!touch) {
+                    // 如果 touch 事件意外結束 (如 touchcancel)
+                    if (originalParent) {
+                        originalParent.appendChild(draggedToken);
+                    }
+                } else {
+                    const elementUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                    let dropTarget = elementUnder ? elementUnder.closest('.grid-cell, #player-token-bank') : null;
+
+                    // 如果手指滑太快，elementUnder 可能是 null，嘗試使用 lastValidTarget
+                    if (!dropTarget && lastValidTarget) {
+                        dropTarget = lastValidTarget;
+                    }
+                    
+                    // 決定籌碼的最終歸屬
+                    if (dropTarget) {
+                        dropTarget.appendChild(draggedToken);
+                    } else {
+                        originalParent.appendChild(draggedToken); // 放回原位
+                    }
+                }
+
+
+                // 清理 'drag-over' 樣式
+                if (lastValidTarget) {
+                    lastValidTarget.classList.remove('drag-over');
+                }
+                
+                // 恢復籌碼的樣式
+                draggedToken.style.opacity = '1';
+                draggedToken.style.position = 'static'; // 恢復靜態定位
+                draggedToken.style.zIndex = 'auto';
+                draggedToken.style.left = 'auto';
+                draggedToken.style.top = 'auto';
+                draggedToken.style.pointerEvents = 'auto';
+
+
+                // 清理全域變數
+                draggedToken = null;
+                originalParent = null;
+                lastValidTarget = null;
+                touchOffsetX = 0;
+                touchOffsetY = 0;
+
+                // 移除全域事件
+                document.removeEventListener('touchmove', handleTouchMove);
+                document.removeEventListener('touchend', handleTouchEnd);
+                document.removeEventListener('touchcancel', handleTouchEnd);
+            }
+            // --- 【新增】結束 ---
+
 
             function setupDragAndDrop() {
+                // --- 1. 桌面 (Mouse) 拖曳事件 (保留) ---
                 document.addEventListener('dragstart', (e) => {
                     if (e.target.classList.contains('player-token')) {
                         draggedToken = e.target;
@@ -762,32 +886,66 @@
                         draggedToken.style.opacity = '1';
                         draggedToken = null;
                     }
+                     // 清理可能殘留的樣式
+                    if(lastValidTarget) {
+                        lastValidTarget.classList.remove('drag-over');
+                        lastValidTarget = null;
+                    }
                 });
 
                 [seatingGrid, playerTokenBank].forEach(container => {
                     container.addEventListener('dragover', (e) => {
                         e.preventDefault(); 
                         const targetCell = e.target.closest('.grid-cell, #player-token-bank');
+                        
+                        // 清理舊的
+                        if (lastValidTarget && lastValidTarget !== targetCell) {
+                             lastValidTarget.classList.remove('drag-over');
+                        }
+                        
+                        // 標記新的
                         if (targetCell) {
-                            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
                             targetCell.classList.add('drag-over');
+                            lastValidTarget = targetCell;
+                        } else {
+                            lastValidTarget = null;
                         }
                     });
 
                     container.addEventListener('dragleave', (e) => {
-                        e.target.closest('.grid-cell, #player-token-bank')?.classList.remove('drag-over');
+                        // 當滑鼠離開 *容器* 時，才需要清理
+                        const related = e.relatedTarget ? e.relatedTarget.closest('.grid-cell, #player-token-bank') : null;
+                         if (lastValidTarget && !related) {
+                            lastValidTarget.classList.remove('drag-over');
+                            lastValidTarget = null;
+                         }
                     });
 
                     container.addEventListener('drop', (e) => {
                         e.preventDefault();
-                        const targetCell = e.target.closest('.grid-cell, #player-token-bank');
+                        // 使用 lastValidTarget 來確保放置到正確的格子
+                        const targetCell = lastValidTarget;
+                        
                         if (targetCell && draggedToken) {
                             targetCell.appendChild(draggedToken);
+                        }
+                        
+                        // 清理
+                        if (targetCell) {
                             targetCell.classList.remove('drag-over');
                         }
+                        if (lastValidTarget) {
+                            lastValidTarget.classList.remove('drag-over');
+                        }
+                        lastValidTarget = null;
                     });
                 });
+                
+                // --- 2. 手機 (Touch) 拖曳事件 ---
+                // 監聽器已在 generatePlayerTokens() 中動態綁定到每個籌碼上
+                // 全域的 touchmove / touchend 則在 handleTouchStart 中動態添加/移除
             }
+
 
             function handleLockLayout() {
                 activePlayers = [];
@@ -800,7 +958,6 @@
                 });
 
                 if (activePlayers.length !== activePlayerCount) {
-                    // 使用 custom modal UI for error message
                     alert(`請將所有 ${activePlayerCount} 位玩家都拖曳到 5x5 網格中。`);
                     return;
                 }
@@ -812,10 +969,6 @@
 
                 renderMiniLayout();
                 scoreboardSection.classList.add('seating-locked');
-                
-                // 1. 隱藏設置和座位區 (已在 CSS 中處理 .seating-locked)
-                // 2. 顯示遊戲進程區
-                document.querySelector('.tracker-section').classList.remove('hidden');
 
                 // 鎖定後才初始化局數
                 setupRoundTabs();
@@ -827,15 +980,11 @@
                 // 清空局數記錄，因為玩家可能變動
                 roundTabsContainer.innerHTML = '';
                 roundLogContainer.innerHTML = '';
-                document.querySelector('.tracker-section').classList.add('hidden');
-                // 重新產生玩家籌碼 (以便從 bank 重新拖曳)
-                generatePlayerTokens();
             }
 
             function renderMiniLayout() {
                 miniSeatingGrid.innerHTML = '';
                 const mainGridCells = seatingGrid.querySelectorAll('.grid-cell');
-                // 複製主網格佈局到小地圖
                 mainGridCells.forEach(cell => {
                     const miniCell = document.createElement('div');
                     miniCell.classList.add('mini-grid-cell');
@@ -904,7 +1053,7 @@
                         <div class="mission-result-section mt-6 pt-6 border-t-2 border-dashed border-gray-300 hidden">
                             <h4 class="text-lg font-semibold mb-3">最終任務結果</h4>
                             <div class="log-field mb-3">
-                                <label class="block font-medium mb-2">點擊任務成功 (黃) 或失敗 (黑) 的玩家：</label>
+                                <label class="block font-medium mb-2">點擊任務失敗 (黑) 的玩家：</label>
                                 <div class="player-button-group" data-mode="mission" data-round="${roundNumber}">
                                     <!-- JS 會填充任務隊員 -->
                                 </div>
@@ -938,8 +1087,9 @@
                 
                 // 5 票否決
                 if (attemptCount > 5) {
-                    // 由於投票否決後會隱藏按鈕，這裡理論上不會被觸發，除非是手動清除狀態。
-                    return; 
+                    alert('已經 5 次投票失敗，任務自動失敗！');
+                    // 可以在這裡自動標記任務失敗
+                    return;
                 }
                 
                 const teamSize = currentRules.teamSizes[roundNumber - 1];
@@ -983,11 +1133,16 @@
                 `;
                 
                 container.appendChild(attemptEl);
-                
+
                 // 更新 "新增按鈕" 的文字
                 const addBtn = container.nextElementSibling;
                 if (addBtn && addBtn.classList.contains('add-vote-attempt-btn')) {
-                    addBtn.textContent = `+ 新增投票回合 (${attemptCount + 1} 票否決)`;
+                    addBtn.textContent = `+ 新增投票回合 (${attemptCount} 票否決)`;
+                    if(attemptCount === 5) {
+                        addBtn.textContent = '第 5 票否決，任務失敗';
+                        addBtn.disabled = true;
+                        addBtn.classList.add('bg-red-100', 'text-red-700', 'cursor-not-allowed');
+                    }
                 }
             }
 
@@ -1007,7 +1162,7 @@
                 const group = button.parentElement;
                 
                 // 防呆：如果按鈕被禁用 (如已選隊長)
-                if (button.style.pointerEvents === 'none' || button.classList.contains('disabled')) {
+                if (button.classList.contains('disabled')) {
                     return;
                 }
 
@@ -1016,7 +1171,7 @@
                     group.querySelectorAll('.player-btn').forEach(btn => btn.classList.remove('selected'));
                     button.classList.add('selected');
 
-                    // 連動更新「隊員」區：選中並禁用隊長
+                    // 連動更新「隊員」區
                     const voteAttemptEl = button.closest('.vote-attempt');
                     const teamGroup = voteAttemptEl.querySelector('.player-button-group[data-mode="team"]');
                     const teamLimit = parseInt(teamGroup.dataset.limit, 10);
@@ -1026,19 +1181,10 @@
                         btn.classList.remove('selected', 'disabled');
                     });
 
+                    // 選中並禁用隊長
                     const leaderInTeam = teamGroup.querySelector(`.player-btn[data-player="${player}"]`);
                     if (leaderInTeam) {
                         leaderInTeam.classList.add('selected', 'disabled');
-                        // 如果加上隊長後超過人數，要移除其他隊員
-                        let selectedCount = teamGroup.querySelectorAll('.selected').length;
-                        if (selectedCount > teamLimit) {
-                            teamGroup.querySelectorAll('.selected:not(.disabled)').forEach((btn, index) => {
-                                if (selectedCount > teamLimit) {
-                                    btn.classList.remove('selected');
-                                    selectedCount--;
-                                }
-                            });
-                        }
                     }
                 }
                 
@@ -1054,8 +1200,7 @@
                         if (selectedCount < teamLimit) {
                             button.classList.add('selected');
                         } else {
-                            // 使用 custom modal UI for error message
-                            alert(`隊伍人數已達上限 ${teamLimit} 人！`);
+                            alert(`隊伍人數已達上限 ${teamSize} 人！`);
                         }
                     }
                 }
@@ -1066,39 +1211,21 @@
                 }
 
                 if (mode === 'mission') {
-                    // 【優化】點擊任何按鈕，切換所有按鈕的狀態 (成功 <-> 失敗)
-                    const isAnyFail = group.querySelector('.selected-fail');
-                    
-                    // 檢查目標按鈕當前狀態
-                    const isTargetFail = button.classList.contains('selected-fail');
-                    const isTargetSuccess = button.classList.contains('selected-success');
-                    
-                    // 決定要切換到的狀態
-                    let nextFailState = false;
+                    // 循環: 預設 -> 成功 (黃) -> 失敗 (黑) -> 預設
+                    const isSuccess = button.classList.contains('selected-success');
+                    const isFail = button.classList.contains('selected-fail');
 
-                    if (isTargetFail) {
-                        // 當前是 Fail，切換到 Success (黃)
-                        nextFailState = false; 
-                    } else if (isTargetSuccess) {
-                        // 當前是 Success，切換到預設 (清除)
-                        group.querySelectorAll('.player-btn.mission').forEach(btn => {
-                            btn.classList.remove('selected-success', 'selected-fail');
-                        });
-                        return; // 完成清除，退出
-                    } else {
-                        // 當前是預設/清除，切換到 Fail (黑)
-                        nextFailState = true; 
+                    if (!isSuccess && !isFail) {
+                        // 預設 -> 成功
+                        button.classList.add('selected-success');
+                    } else if (isSuccess) {
+                        // 成功 -> 失敗
+                        button.classList.remove('selected-success');
+                        button.classList.add('selected-fail');
+                    } else if (isFail) {
+                        // 失敗 -> 預設
+                        button.classList.remove('selected-fail');
                     }
-
-                    // 批量應用狀態
-                    group.querySelectorAll('.player-btn.mission').forEach(btn => {
-                        btn.classList.remove('selected-success', 'selected-fail');
-                        if (nextFailState) {
-                            btn.classList.add('selected-fail');
-                        } else {
-                            btn.classList.add('selected-success');
-                        }
-                    });
                 }
             }
 
@@ -1110,20 +1237,16 @@
                 const voteAttemptEl = button.closest('.vote-attempt');
                 const voteGroup = voteAttemptEl.querySelector('.player-button-group[data-mode="vote"]');
                 const resultDisplay = voteAttemptEl.querySelector('.vote-result-display');
-                const roundLogEl = button.closest('.round-log');
-                const addBtn = roundLogEl.querySelector('.add-vote-attempt-btn');
 
                 const approveCount = voteGroup.querySelectorAll('.selected').length;
                 const rejectCount = activePlayerCount - approveCount;
 
                 let result = '';
                 let resultClass = '';
-                let isPass = false;
 
                 if (approveCount > rejectCount) {
                     result = `投票通過 (${approveCount} 贊成, ${rejectCount} 反對)`;
                     resultClass = 'pass';
-                    isPass = true;
                     // 鎖定此投票
                     lockVoteAttempt(voteAttemptEl);
                     // 顯示任務結果區
@@ -1140,44 +1263,6 @@
                 
                 resultDisplay.textContent = result;
                 resultDisplay.className = `vote-result-display mt-4 ${resultClass}`; // 重置 class
-
-                // 【需求 2 修正】投票否決/平手後，移除「新增投票回合」按鈕
-                if (!isPass) {
-                    if (addBtn) {
-                        addBtn.classList.add('hidden');
-                    }
-                    
-                    // 如果達到 5 次否決，自動處理任務失敗
-                    const attemptCountNum = parseInt(attempt, 10);
-                    if (attemptCountNum === 5) {
-                        const missionSection = roundLogEl.querySelector('.mission-result-section');
-                        const confirmMissionBtn = missionSection.querySelector('.confirm-mission-btn');
-                        
-                        // 模擬任務失敗，因為 5 票否決任務自動失敗
-                        confirmMissionBtn.dataset.failsNeeded = 100; // 確保失敗
-                        showMissionResultSection(round, voteAttemptEl); // 必須顯示任務區
-                        
-                        // 直接觸發確認
-                        const fakeEvent = { target: { closest: () => confirmMissionBtn } };
-                        handleConfirmMissionClick(fakeEvent);
-
-                        const resultDisplayMission = missionSection.querySelector('.mission-result-display');
-                        resultDisplayMission.textContent = '任務自動失敗 (5 次投票否決)';
-                        resultDisplayMission.className = 'mission-result-display mt-4 fail';
-
-                        missionSection.querySelector('.player-button-group[data-mode="mission"]').style.pointerEvents = 'none';
-                    } else {
-                        // 否決或平手，可以新增下一回合投票
-                        if (addBtn) {
-                            addBtn.classList.remove('hidden');
-                        }
-                    }
-                } else {
-                    // 投票通過，隱藏新增按鈕直到任務完成
-                    if (addBtn) {
-                        addBtn.classList.add('hidden');
-                    }
-                }
             }
 
             function lockVoteAttempt(voteAttemptEl) {
@@ -1205,10 +1290,7 @@
                 missionSection.classList.remove('hidden');
 
                 // 隱藏 "新增投票" 按鈕
-                const addBtn = roundLogEl.querySelector('.add-vote-attempt-btn');
-                if(addBtn) {
-                    addBtn.classList.add('hidden');
-                }
+                roundLogEl.querySelector('.add-vote-attempt-btn').classList.add('hidden');
             }
             
             function handleConfirmMissionClick(e) {
@@ -1228,7 +1310,6 @@
 
                 // 驗證是否所有玩家都已選擇
                 if (failCount + successCount !== totalPlayers) {
-                    // 使用 custom modal UI for error message
                     alert('請為所有任務玩家選擇「成功(黃)」或「失敗(黑)」。');
                     return;
                 }
