@@ -163,7 +163,7 @@
 
         /* 右上角鎖定後的小地圖 */
         #mini-seating-layout-container {
-            position: fixed; /* 【修改】改為 fixed，使其始終漂浮 */
+            position: absolute; /* 【修改】還原為 absolute，使其隨頁面捲動 */
             top: 1.5rem; /* 24px */
             right: 1.5rem; /* 24px */
             z-index: 10;
@@ -197,8 +197,8 @@
         }
 
         /* 當座位鎖定時，隱藏主網格 */
-        #scoreboard-section.seating-locked #seating-section,
-        #scoreboard-section.seating-locked #setup-section {
+        #scoreboard-section.seating-locked .seating-section,
+        #scoreboard-section.seating-locked .setup-section {
             display: none;
         }
         /* 當未鎖定時，隱藏小地圖和解鎖按鈕 */
@@ -328,10 +328,10 @@
             .player-token { width: 35px; height: 35px; line-height: 35px; font-size: 12px; }
             
             #mini-seating-layout-container {
-                /* Base rule is already position: fixed */
-                /* 【修改】調整手機上的邊距 */
-                top: 0.75rem; /* 12px */
-                right: 0.75rem; /* 12px */
+                position: static; /* 【修改】還原為 static，使其在手機上位於內容頂部 */
+                margin-bottom: 1.5rem; /* 24px */
+                top: auto; /* 清除 fixed 留下的屬性 */
+                right: auto; /* 清除 fixed 留下的屬性 */
             }
             #mini-seating-grid {
                 max-width: 300px; /* 限制寬度 */
