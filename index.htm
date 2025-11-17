@@ -163,7 +163,7 @@
 
         /* 右上角鎖定後的小地圖 */
         #mini-seating-layout-container {
-            position: absolute;
+            position: fixed; /* 【修改】改為 fixed，使其始終漂浮 */
             top: 1.5rem; /* 24px */
             right: 1.5rem; /* 24px */
             z-index: 10;
@@ -328,9 +328,8 @@
             .player-token { width: 35px; height: 35px; line-height: 35px; font-size: 12px; }
             
             #mini-seating-layout-container {
-                /* position: static; 解除絕對定位 */
-                /* margin-bottom: 1.5rem; 24px */
-                position: fixed; /* 【修改】固定在視窗右上角 */
+                /* Base rule is already position: fixed */
+                /* 【修改】調整手機上的邊距 */
                 top: 0.75rem; /* 12px */
                 right: 0.75rem; /* 12px */
             }
